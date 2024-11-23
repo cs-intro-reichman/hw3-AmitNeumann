@@ -43,19 +43,25 @@ public class LoanCalc {
     // Given: the sum of the loan, the periodical interest rate (as a percentage),
     // the number of periods (n), and epsilon, the approximation's accuracy
     // Side effect: modifies the class variable iterationCounter.
-    public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
-		double g = loan / n; // Initial guess for payment
-		double increment = 0.001; // Increment size
-		double balance = endBalance(loan, rate, n, g); // Initial balance
+	public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
+		double g = loan / n; // Initial guess
+		double increment = 0.001;
+		double balance = endBalance(loan, rate, n, g);
 	
-		while (Math.abs(balance) > epsilon) { // Stop when balance is close to zero
-			g += increment; // Increment the payment
-			balance = endBalance(loan, rate, n, g); // Update balance
+		int maxIterations = 1_000_000; // Safety limit
+		while (Math.abs(balance) > epsilon && iterationCounter < maxIterations) {
+			g += increment;
+			balance = endBalance(loan, rate, n, g);
 			iterationCounter++;
+		}
+	
+		if (iterationCounter >= maxIterations) {
+			System.out.println("BruteForceSolver: Max iterations reached. Exiting...");
 		}
 	
 		return g;
 	}
+	
 	
     
     // Uses bisection search to compute an approximation of the periodical payment 
@@ -64,26 +70,30 @@ public class LoanCalc {
     // the number of periods (n), and epsilon, the approximation's accuracy
     // Side effect: modifies the class variable iterationCounter.
     public static double bisectionSolver(double loan, double rate, int n, double epsilon) {
-		double L = loan / n; // Lower bound for payment
-		double H = (loan * (1 + rate)) / n; // Upper bound for payment
-		double g = (L + H) / 2; // Midpoint for bisection
+		double L = loan / n;
+		double H = (loan * Math.pow(1 + rate, n)) / n;
+		double g = (L + H) / 2;
 		double balance = endBalance(loan, rate, n, g);
 	
-		// Loop until balance is close to zero or bounds converge
-		while (Math.abs(balance) > epsilon && Math.abs(H - L) > epsilon) {
+		int maxIterations = 1000; // Smaller limit for bisection
+		while (Math.abs(balance) > epsilon && Math.abs(H - L) > epsilon && iterationCounter < maxIterations) {
 			if (balance > 0) {
-				L = g; // Payment is too low; adjust lower bound
+				L = g;
 			} else {
-				H = g; // Payment is too high; adjust upper bound
+				H = g;
 			}
-	
-			g = (L + H) / 2; // Update midpoint
-			balance = endBalance(loan, rate, n, g); // Recalculate balance
+			g = (L + H) / 2;
+			balance = endBalance(loan, rate, n, g);
 			iterationCounter++;
+		}
+	
+		if (iterationCounter >= maxIterations) {
+			System.out.println("BisectionSolver: Max iterations reached. Exiting...");
 		}
 	
 		return g;
 	}
+	
 	
 }
 
