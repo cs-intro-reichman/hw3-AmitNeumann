@@ -68,75 +68,108 @@ public class Algebra {
 
 	// Returns x1 * x2
 	public static int times(int x1, int x2) {
-		int n=x1,restartN=x1;
-		if (x1==0||x2==0) {
-			return 0;
-		} else { 
-			if (x1<0&&x2<0) { // both <0
-				int absX1=0,absX2=0;
-				while(x1!=0) {
-					absX1++;
-					x1++;
-				} while(x2!=0) {
-					absX2++;
-					x2++;
-					}
-				x1=absX1;
-				x2=absX2;
-				n=x1;
-				restartN=x1;
-			}
-			if(x1>0&&x2>0){
-				for(int i=1;i<x2;i++) {
-					n=restartN;
-					while(n!=0){
-						x1++;
-						n--;
-					}
-				}
-			return x1;
-			} else { // at least one is <0
-				if (x2>0) { // and x1<0
-					for(int i=0;i<x2;i++){
-						n=restartN;
-						while(n!=0){
-							x1--;
-							n++;
-						}
-					}
-				return x1;
-				} else { if(x1>0) {  // and x2<0
-							n=x2;
-							restartN=x2;
-							for(int i=0;i<x1;i++){
-								n=restartN;
-								while(n!=0){
-									x2--;
-									n++;
-								}
-							}
-						} 
-				}
-			}
-		}
-		return x2;
-	}
+		int n = x1, restartN = x1;
+
+    // Handle cases where either number is zero
+    if (x1 == 0 || x2 == 0) {
+        return 0;
+    } else {
+        if (x1 < 0 && x2 < 0) { // Both x1 and x2 are negative
+            int absX1 = 0, absX2 = 0;
+
+            // Convert x1 to positive
+            while (x1 != 0) {
+                absX1++;
+                x1++;
+            }
+
+            // Convert x2 to positive
+            while (x2 != 0) {
+                absX2++;
+                x2++;
+            }
+
+            // Reset x1 and x2 to their absolute values
+            x1 = absX1;
+            x2 = absX2;
+            n = x1;
+            restartN = x1;
+        }
+
+        if (x1 > 0 && x2 > 0) { // Both x1 and x2 are positive
+            for (int i = 1; i < x2; i++) {
+                n = restartN;
+                while (n != 0) {
+                    x1++;
+                    n--;
+                }
+            }
+            return x1;
+        } else { // At least one of x1 or x2 is negative
+            if (x2 > 0) { // x2 is positive and x1 is negative
+                for (int i = 1; i < x2; i++) {
+                    n = restartN;
+                    while (n != 0) {
+                        x1--;
+                        n++;
+                    }
+                }
+                return x1;
+            } else { // x2 is negative
+                if (x1 > 0) { // x1 is positive and x2 is negative
+                    n = x2;
+                    restartN = x2;
+                    for (int i = 1; i < x1; i++) {
+                        n = restartN;
+                        while (n != 0) {
+                            x2--;
+                            n++;
+                        }
+                    }
+                    return x2;
+                }
+            }
+        }
+    }
+    return x2;
+}
 
 	// Returns x^n (for n >= 0)
 	public static int pow(int x, int n) {
-		if (x==0) {
-			return 0;
-		}
-		else { if(n==0) {
-				return 1;
-			}
-		}
-		int sum=x;
-		for(int i=1;i<n;i++) {
-			sum=times(sum, x);
-			}
-			return sum;
-		}
+	// Handle the case where the base (x) is 0
+    if (x == 0) {
+        if (n == 0) {
+            throw new ArithmeticException("0^0 is undefined");
+        }
+        return 0; // 0 raised to any positive power is 0
+    }
+
+    // Handle the case where the exponent (n) is 0
+    if (n == 0) {
+        return 1; // Any number raised to the power of 0 is 1
+    }
+
+    // Handle negative exponents (returning integer approximation)
+    boolean isNegativeExponent = false;
+    if (n < 0) {
+        n = -n; // Make exponent positive
+        isNegativeExponent = true;
+    }
+
+    // Calculate power for positive exponents
+    int sum = x;
+    for (int i = 1; i < n; i++) {
+        sum = times(sum, x); // Use the "times" method for multiplication
+    }
+
+    // If the exponent was negative, return 1 / (x^n)
+    if (isNegativeExponent) {
+        // Since we're working with integers, the result of 1 / (x^n) will always truncate to 0 for x^n > 1
+        return 0; // Integer division doesn't allow fractional results
+    }
+
+    return sum;
+}
 	
 
 	// Returns the integer part of x1 / x2 
